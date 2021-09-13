@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kibana-logging
+  namespace: kube-system
+  labels:
+    k8s-app: kibana-logging
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: kibana-logging
+  template:
+    metadata:
+      labels:
+        k8s-app: kibana-logging
+    spec:
+      containers:
+      - name: kibana-logging
+        image: docker.elastic.co/kibana/kibana-oss:7.10.2
+        env:
+          - name: ELASTICSEARCH_HOSTS
+            value: http://elasticsearch-logging:9200
+          - name: SERVER_MAXPAYLOADBYTES
+            value: "10485760"
+        ports:
+        - containerPort: 5601
+          name: ui
+          protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kibana-logging
+  namespace: kube-system
+  labels:
+    k8s-app: kibana-logging
+    kubernetes.io/name: "Kibana"
+spec:
+  type: NodePort
+  ports:
+  - port: 5601
+    protocol: TCP
+    targetPort: ui
+    nodePort: 32000
+  selector:
+    k8s-app: kibana-logging

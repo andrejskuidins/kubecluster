@@ -1,0 +1,16 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: elasticsearch-logging
+  namespace: kube-system
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: elasticsearch-logging
+            image: dirivio/python-pod-logs
+            imagePullPolicy: Always
+          restartPolicy: OnFailure
