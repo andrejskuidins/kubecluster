@@ -223,13 +223,13 @@ resource "aws_vpc_endpoint" "s3" {
 }
 
 # Modify the EC2 instance resource to use the key pair
-resource "aws_instance" "kube" {
-  count                = 3
-  ami                  = data.aws_ami.ubuntu.id
-  instance_type        = "c7a.large"
-  subnet_id            = aws_subnet.main.id
-  key_name             = aws_key_pair.generated_key.key_name
-  iam_instance_profile = aws_iam_instance_profile.ssm_profile.name
+resource "aws_instance" "kube_master" {
+  ami                     = data.aws_ami.ubuntu.id
+  instance_type           = "c7a.large"
+  subnet_id               = aws_subnet.main.id
+  key_name                = aws_key_pair.generated_key.key_name
+  iam_instance_profile    = aws_iam_instance_profile.ssm_profile.name
+  disable_api_termination = true
 
   vpc_security_group_ids = [aws_security_group.allow_ssh.id]
 
@@ -246,6 +246,35 @@ resource "aws_instance" "kube" {
   user_data_replace_on_change = true
 
   tags = {
-    Name = "kube-cluster-test-${count.index + 1}"
+    Name = "kube-cluster-test-1"
+  }
+}
+
+# Modify the EC2 instance resource to use the key pair
+resource "aws_instance" "kube" {
+  count                   = 2
+  ami                     = data.aws_ami.ubuntu.id
+  instance_type           = "c7a.medium"
+  subnet_id               = aws_subnet.main.id
+  key_name                = aws_key_pair.generated_key.key_name
+  iam_instance_profile    = aws_iam_instance_profile.ssm_profile.name
+  disable_api_termination = true
+
+  vpc_security_group_ids = [aws_security_group.allow_ssh.id]
+
+  user_data = <<-EOF
+            #!/bin/bash
+            apt-get update
+            apt-get install -y snapd
+            snap install amazon-ssm-agent --classic
+            systemctl enable snap.amazon-ssm-agent.amazon-ssm-agent.service
+            systemctl start snap.amazon-ssm-agent.amazon-ssm-agent.service
+            EOF
+
+  # Make sure we wait for user data to complete
+  user_data_replace_on_change = true
+
+  tags = {
+    Name = "kube-cluster-test-${count.index + 2}"
   }
 }
