@@ -9,6 +9,7 @@ provider "aws" {
       solution    = "1nce-connect"
       environment = "dev"
       component   = "kubemajik"
+      owner       = "andrejs.kuidins"
     }
   }
 }
