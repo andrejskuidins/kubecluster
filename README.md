@@ -1,4 +1,4 @@
-# Prometheus + Grafana + Apache
+# Kubecluster
 
 Running Apache and Apache Exporter containers on same pod.
 
