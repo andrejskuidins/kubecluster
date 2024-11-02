@@ -119,10 +119,6 @@ resource "aws_key_pair" "generated_key" {
   public_key = file("~/.ssh/terraform-key-pair.pub")
 }
 
-output "instance_public_ips" {
-  value = aws_instance.kube[*].public_ip
-}
-
 # Create IAM role for EC2 instances
 resource "aws_iam_role" "ssm_role" {
   name = "SSMInstanceRole"
@@ -231,7 +227,10 @@ resource "aws_instance" "kube_master" {
   iam_instance_profile    = aws_iam_instance_profile.ssm_profile.name
   disable_api_termination = true
 
-  vpc_security_group_ids = [aws_security_group.allow_ssh.id]
+  vpc_security_group_ids = [
+    aws_security_group.allow_ssh.id,
+    aws_security_group.kubernetes_sg.id
+  ]
 
   user_data = <<-EOF
             #!/bin/bash
@@ -260,7 +259,10 @@ resource "aws_instance" "kube" {
   iam_instance_profile    = aws_iam_instance_profile.ssm_profile.name
   disable_api_termination = true
 
-  vpc_security_group_ids = [aws_security_group.allow_ssh.id]
+  vpc_security_group_ids = [
+    aws_security_group.allow_ssh.id,
+    aws_security_group.kubernetes_sg.id
+  ]
 
   user_data = <<-EOF
             #!/bin/bash
@@ -277,4 +279,40 @@ resource "aws_instance" "kube" {
   tags = {
     Name = "kube-cluster-test-${count.index + 2}"
   }
+}
+
+# Replace the existing kubernetes_sg resource with this simplified version
+resource "aws_security_group" "kubernetes_sg" {
+  name        = "kubernetes-sg"
+  description = "Allow all internal traffic between Kubernetes nodes"
+  vpc_id      = aws_vpc.main.id
+
+  # Allow all internal traffic within the subnet
+  ingress {
+    description = "All internal traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["10.0.1.0/24"]  # This matches your subnet CIDR
+  }
+
+  # Allow outbound traffic (typically needed for updates, package installation)
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "kubernetes-sg"
+  }
+}
+
+output "master_public_ips" {
+  value = aws_instance.kube_master.public_ip
+}
+
+output "instance_public_ips" {
+  value = aws_instance.kube[*].public_ip
 }
