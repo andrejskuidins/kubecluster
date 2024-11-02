@@ -1,0 +1,210 @@
+# https://github.com/github/gitignore/tree/main/Global
+# Mac OS: General
+.DS_Store
+.LSOverride
+.AppleDouble
+
+
+# Mac OS: Icon(s)
+Icon
+
+
+# Mac OS: Thumbnails
+._*
+
+
+# Mac OS: | Files that might appear in the root of a volume |
+.Trashes
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.VolumeIcon.icns
+.DocumentRevisions-V100
+.com.apple.timemachine.donotpresent
+
+
+# Mac OS: | Directories potentially created on remote AFP share |
+.apdisk
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+
+
+# Windows: Thumbnails
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+
+
+# Windows: Dumps
+*.stackdump
+[Dd]esktop.ini
+
+
+# Windows: Recycle Bin
+$RECYCLE.BIN/
+
+
+# Windows: Installer Files
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+
+
+# Windows: Shortcuts
+*.lnk
+
+
+# Linux
+*~
+.nfs*
+.Trash-*
+.directory
+.fuse_hidden*
+
+
+# ------------------------------------------------------------------------------------- #
+# Jet Brains: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, WebStorm and Rider
+# Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
+# Jet Brains: User Specifics
+.idea/**/shelf
+.idea/**/aws.xml
+.idea/**/tasks.xml
+.idea/**/dictionaries
+.idea/**/workspace.xml
+.idea/**/usage.statistics.xml
+.idea/**/contentModel.xml
+
+
+# Jet Brains: Sensitive Files
+.idea/**/dynamic.xml
+.idea/**/dataSources/
+.idea/**/uiDesigner.xml
+.idea/**/dbnavigator.xml
+.idea/**/dataSources.ids
+.idea/**/sqlDataSources.xml
+.idea/**/dataSources.local.xml
+
+
+# Jet Brains: Gradle
+.idea/**/libraries
+.idea/**/gradle.xml
+
+
+# Jet Brains: Plugins
+*.iws
+out/
+cmake-build-*/
+.idea_modules/
+.idea/sonarlint/
+.idea/replstate.xml
+.idea/**/mongoSettings.xml
+.idea/caches/build_file_checksums.ser
+atlassian-ide-plugin.xml
+
+
+# Crashlytics Plugin
+fabric.properties
+crashlytics.properties
+crashlytics-build.properties
+com_crashlytics_export_strings.xml
+
+
+# Jet Brains: Rest Client
+.idea/httpRequests
+
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+
+
+# Visual Studio Code: Local History & Built Extensions
+*.vsix
+.history/
+
+
+# Xcode
+*.xccheckout
+*.xcscmblueprint
+
+
+# Xcode: User Settings
+xcuserdata/
+
+
+# Linux [ VIM ]: Swap
+[._]*.s[a-v][a-z]
+!*.svg  # comment out if you don't need vector files
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+
+
+# Linux [ VIM ]: Session
+Session.vim
+Sessionx.vim
+
+
+# Linux [ VIM ]: Temporary
+*~
+*.bak
+.netrwhist
+
+
+# Linux [ VIM ]: Auto Generated Tags
+tags
+
+
+# Linux [ VIM ]: Persistent Undo
+[._]*.un~
+
+
+# ------------------------------------------------------------------------------------- #
+# Terraform: Local `.terraform` Directories
+**/.terraform/*
+
+
+# Terraform: `Lock` Files
+.terraform.lock.hcl
+
+
+# Terraform: `.tfstate` Files
+*.tfstate
+*.tfstate.*
+
+
+# Terraform: Provider Crash Log Files
+crash.log
+
+
+# Terraform: `.tfvars` Files
+# Exclude all .tfvars files, which are likely to contain sentitive data, such as
+# password, private keys, and other secrets. These should not be part of version
+# control as they are data points which are potentially sensitive and subject
+# to change depending on the environment
+#*.tfvars
+
+
+# Terraform: `*override.tf` Files
+# Ignore override files as they are usually used to override resources locally
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+
+# Terraform: Ignore Local Configuration Files
+.terraformrc
+terraform.rc
+
+.idea/
