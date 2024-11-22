@@ -232,6 +232,11 @@ resource "aws_instance" "kube_master" {
     aws_security_group.kubernetes_sg.id
   ]
 
+  root_block_device {
+    volume_size = 20    # Size in GB
+    volume_type = "gp3" # Recommended volume type
+  }
+
   user_data = <<-EOF
             #!/bin/bash
             apt-get update
@@ -251,7 +256,7 @@ resource "aws_instance" "kube_master" {
 
 # Modify the EC2 instance resource to use the key pair
 resource "aws_instance" "kube" {
-  count                   = 2
+  count                   = 1
   ami                     = data.aws_ami.ubuntu.id
   instance_type           = "c7a.medium"
   subnet_id               = aws_subnet.main.id
@@ -263,6 +268,11 @@ resource "aws_instance" "kube" {
     aws_security_group.allow_ssh.id,
     aws_security_group.kubernetes_sg.id
   ]
+
+  root_block_device {
+    volume_size = 20    # Size in GB
+    volume_type = "gp3" # Recommended volume type
+  }
 
   user_data = <<-EOF
             #!/bin/bash
@@ -293,7 +303,7 @@ resource "aws_security_group" "kubernetes_sg" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["10.0.1.0/24"]  # This matches your subnet CIDR
+    cidr_blocks = ["10.0.1.0/24"] # This matches your subnet CIDR
   }
 
   # Allow outbound traffic (typically needed for updates, package installation)
