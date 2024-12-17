@@ -250,7 +250,7 @@ resource "aws_instance" "kube_master" {
   user_data_replace_on_change = true
 
   tags = {
-    Name = "kube-cluster-test-1"
+    Name = "andrej-aws-test-1"
   }
 }
 
@@ -287,7 +287,7 @@ resource "aws_instance" "kube" {
   user_data_replace_on_change = true
 
   tags = {
-    Name = "kube-cluster-test-${count.index + 2}"
+    Name = "andrej-aws-test-${count.index + 2}"
   }
 }
 
