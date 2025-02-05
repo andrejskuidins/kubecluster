@@ -177,6 +177,14 @@ resource "aws_security_group" "vpc_endpoints" {
     security_groups = [aws_security_group.allow_ssh.id]
   }
 
+  ingress {
+    description     = "Allow SSM traffic from private instance SG"
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    security_groups = [aws_security_group.private_instance_sg.id]
+  }
+
   tags = {
     Name = "vpc-endpoints-sg"
   }
@@ -187,7 +195,7 @@ resource "aws_vpc_endpoint" "ssm" {
   vpc_id              = aws_vpc.main.id
   service_name        = "com.amazonaws.eu-central-1.ssm"
   vpc_endpoint_type   = "Interface"
-  subnet_ids          = [aws_subnet.main.id]
+  subnet_ids          = [aws_subnet.main.id, aws_subnet.private_subnet.id]
   security_group_ids  = [aws_security_group.vpc_endpoints.id]
   private_dns_enabled = true
 }
@@ -196,7 +204,7 @@ resource "aws_vpc_endpoint" "ssmmessages" {
   vpc_id              = aws_vpc.main.id
   service_name        = "com.amazonaws.eu-central-1.ssmmessages"
   vpc_endpoint_type   = "Interface"
-  subnet_ids          = [aws_subnet.main.id]
+  subnet_ids          = [aws_subnet.main.id, aws_subnet.private_subnet.id]
   security_group_ids  = [aws_security_group.vpc_endpoints.id]
   private_dns_enabled = true
 }
@@ -205,7 +213,7 @@ resource "aws_vpc_endpoint" "ec2messages" {
   vpc_id              = aws_vpc.main.id
   service_name        = "com.amazonaws.eu-central-1.ec2messages"
   vpc_endpoint_type   = "Interface"
-  subnet_ids          = [aws_subnet.main.id]
+  subnet_ids          = [aws_subnet.main.id, aws_subnet.private_subnet.id]
   security_group_ids  = [aws_security_group.vpc_endpoints.id]
   private_dns_enabled = true
 }
@@ -325,4 +333,83 @@ output "master_public_ips" {
 
 output "instance_public_ips" {
   value = aws_instance.kube[*].public_ip
+}
+
+# Create a private subnet
+resource "aws_subnet" "private_subnet" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.2.0/24"
+  availability_zone       = "eu-central-1c"
+  map_public_ip_on_launch = false
+
+  tags = {
+    Name = "private-subnet"
+  }
+}
+
+# Security group for the private instance
+resource "aws_security_group" "private_instance_sg" {
+  name        = "private-instance-sg"
+  description = "Allow internal traffic only"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    description = "Allow traffic from VPC only"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["10.0.0.0/16"]
+  }
+
+  egress {
+    description = "Allow all egress traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "private-instance-sg"
+  }
+}
+
+# EC2 instance inside the private subnet
+resource "aws_instance" "kube_private" {
+  ami                         = data.aws_ami.ubuntu.id
+  instance_type               = "c7a.medium"
+  subnet_id                   = aws_subnet.private_subnet.id
+  key_name                    = aws_key_pair.generated_key.key_name
+  iam_instance_profile        = aws_iam_instance_profile.ssm_profile.name
+  disable_api_termination     = true
+  associate_public_ip_address = false # No public IP
+
+  vpc_security_group_ids = [aws_security_group.private_instance_sg.id]
+
+  root_block_device {
+    volume_size = 20
+    volume_type = "gp3"
+  }
+
+  user_data = <<-EOF
+              #!/bin/bash
+              apt-get update
+              apt-get install -y snapd
+              snap install amazon-ssm-agent --classic
+              systemctl enable snap.amazon-ssm-agent.amazon-ssm-agent.service
+              systemctl start snap.amazon-ssm-agent.amazon-ssm-agent.service
+              EOF
+
+  tags = {
+    Name = "andrej-aws-private-test"
+  }
+}
+
+# Output for the private instance
+output "private_instance_ids" {
+  value = aws_instance.kube_private.id
+}
+
+output "private_instance_subnet_id" {
+  value = aws_subnet.private_subnet.id
 }
