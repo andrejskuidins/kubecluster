@@ -256,7 +256,7 @@ resource "aws_instance" "kube_master" {
 
 # Modify the EC2 instance resource to use the key pair
 resource "aws_instance" "kube" {
-  count                   = 2
+  count                   = 0
   ami                     = data.aws_ami.ubuntu.id
   instance_type           = "c7a.medium"
   subnet_id               = aws_subnet.main.id
